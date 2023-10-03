@@ -1,0 +1,32 @@
+import net
+
+actor main(env):
+    connect_cap = net.TCPConnectCap(net.TCPCap(net.NetCap(env.cap)))
+
+    _addr = "localhost"
+    _port = 12432
+    var _error = False
+
+    def _on_tcp_connect(c):
+        _error = True
+        print("TCP connection established")
+
+    def _on_tcp_receive(c, data):
+        print(data)
+
+    def _on_tcp_error(c, msg):
+        print("TCP Error: " + msg)
+        _error = True
+
+    def _verify():
+        print("Verifying error ...")
+        if _error == False:
+            print("Error bit not set")
+            env.exit(1)
+        else:
+            print("Error bit set")
+            env.exit(0)
+
+    _conn = net.TCPConnection(connect_cap, _addr, _port, _on_tcp_connect, _on_tcp_receive, _on_tcp_error)
+
+    after 2: _verify()
