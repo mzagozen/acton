@@ -111,15 +111,19 @@ actor TCPConnection(cap: TCPConnectCap, address: str, port: int, on_connect: act
 
     action def _on_tcp_error(sockfamily: int, err: int, errmsg: str):
         if sockfamily == 4:
-            if _sock6_error != "":
-                _consecutive_connect_errors += 1
-                on_error(self, errmsg + "  IPv6 error: " + _sock6_error)
+            _consecutive_connect_errors += 1
             _sock4_error = errmsg
+            if _sock6_error != "":
+                on_error(self, errmsg + "  IPv6 error: " + _sock6_error)
+            else:
+                on_error(self, errmsg)
         elif sockfamily == 6:
-            if _sock4_error != "":
-                _consecutive_connect_errors += 1
-                on_error(self, errmsg + "  IPv4 error: " + _sock4_error)
+            _consecutive_connect_errors += 1
             _sock6_error = errmsg
+            if _sock4_error != "":
+                on_error(self, errmsg + "  IPv4 error: " + _sock4_error)
+            else:
+                on_error(self, errmsg)
 
     # TCP connect over IPv4
     proc def _connect4(ip_address: str):
