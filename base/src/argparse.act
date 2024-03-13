@@ -255,7 +255,15 @@ class Parser(object):
                             curlist = res.options[akey].value
                             if isinstance(curlist, list):
                                 newval = curlist
-                        newval.append(val)
+
+                        while p + 1 < len(argv):
+                            p = i + skip
+                            v = argv[p]
+                            if v.startswith("--"):
+                                skip -= 1
+                                break
+                            newval.append(v)
+                            skip += 1
                         res.options[akey] = ("type"="strlist", "value"=newval)
                 else:
                     #raise ArgumentError("Unknown option %s" % arg)

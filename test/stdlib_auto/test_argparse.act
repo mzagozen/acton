@@ -32,12 +32,23 @@ def test_opts_dupe():
         return
     raise ValueError("Expected ArgumentError due to duplicate option")
 
-def test_opts_nargs():
+def test_opts_nargs1():
     p = argparse.Parser()
     p.add_bool("verbose", "Enable verbose output")
     p.add_option("text", "strlist", "+", [], "Text field")
 
     args = p.parse(["./app", "--text", "A", "--verbose", "--text", "B"])
+    if args.get_strlist("text") != ["A", "B"]:
+        raise ValueError('opt strlist != ["A", "B"]')
+    if args.get_bool("verbose") != True:
+        raise ValueError("bool verbose != True")
+
+def test_opts_nargs2():
+    p = argparse.Parser()
+    p.add_bool("verbose", "Enable verbose output")
+    p.add_option("text", "strlist", "+", [], "Text field")
+
+    args = p.parse(["./app", "--text", "A", "B", "--verbose"])
     if args.get_strlist("text") != ["A", "B"]:
         raise ValueError('opt strlist != ["A", "B"]')
     if args.get_bool("verbose") != True:
@@ -276,7 +287,8 @@ def test_help():
 actor main(env):
     try:
         test_opts()
-        test_opts_nargs()
+        test_opts_nargs1()
+        test_opts_nargs2()
         test_opts_dupe()
         test_posarg()
         test_posarg_nargs_invalid()
